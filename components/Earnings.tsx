@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SunIcon, MoonIcon, ClockIcon } from "lucide-react";
+import { SunIcon, MoonIcon, ClockIcon, Star } from "lucide-react";
 import Image from 'next/image';
 //import { Button } from "@/components/ui/button";
 
@@ -33,6 +33,32 @@ const DaySection: React.FC<{
   marketSession: 'pre' | 'after';
   minHeight?: number;
 }> = ({ entries, isPast, marketSession, minHeight }) => {
+  const [starredTickers, setStarredTickers] = useState<string[]>([]);
+
+  // Load starred tickers from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("starredTickers");
+      if (stored) {
+        setStarredTickers(JSON.parse(stored));
+      }
+    }
+  }, []);
+
+  // Save starred tickers to localStorage when changed
+  useEffect(() => {
+    localStorage.setItem("starredTickers", JSON.stringify(starredTickers));
+  }, [starredTickers]);
+
+  const handleStarClick = (e: MouseEvent, ticker: string) => {
+    e.stopPropagation();
+    setStarredTickers(prev => 
+      prev.includes(ticker) 
+        ? prev.filter(t => t !== ticker)
+        : [...prev, ticker]
+    );
+  };
+
   if (entries.length === 0) {
     return (
       <Card className={`h-full relative ${isPast ? 'bg-gray-100 text-gray-500' : ''}`} style={{ minHeight }}>
@@ -51,10 +77,12 @@ const DaySection: React.FC<{
       <CardContent>
         <ul className="space-y-2">
           {entries.map((entry, index) => {
+            const isStarred = starredTickers.includes(entry.ticker);
+            
             return (
               <li
                 key={index}
-                className="flex items-center text-sm"
+                className="flex items-center text-sm justify-between group"
               >
                 <div className="flex items-center">
                   <Image
@@ -69,6 +97,19 @@ const DaySection: React.FC<{
                   />
                   <span className="font-medium">{entry.ticker}</span>
                 </div>
+                <button
+                  onClick={(e) => handleStarClick(e, entry.ticker)}
+                  className={`p-2 rounded-full transition-colors ${
+                    isStarred ? 'text-yellow-500' : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  <Star 
+                    size={18} 
+                    fill={isStarred ? 'currentColor' : 'none'} 
+                    stroke={isStarred ? '#FFD700' : 'currentColor'} 
+                    strokeWidth={2} 
+                  />
+                </button>
               </li>
             );
           })}
