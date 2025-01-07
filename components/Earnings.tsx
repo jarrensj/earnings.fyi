@@ -7,6 +7,9 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SunIcon, MoonIcon, ClockIcon, Star } from "lucide-react";
 import Image from 'next/image';
+import { DndContext, DragEndEvent, useDraggable, useDroppable, closestCenter } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 //import { Button } from "@/components/ui/button";
 
 dayjs.extend(isoWeek);
@@ -27,12 +30,71 @@ type WeekData = {
   [key: string]: EarningEntry[];
 };
 
+const TickerItem: React.FC<{
+  ticker: string;
+  isStarred: boolean;
+  isPast: boolean;
+  onStarClick: (e: MouseEvent) => void;
+  id: string;
+}> = ({ ticker, isStarred, isPast, onStarClick, id }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="flex items-center text-sm justify-between group cursor-move"
+    >
+      <div className="flex items-center">
+        <Image
+          src={`/company-logos/${ticker}.svg`}
+          alt={`${ticker} logo`}
+          width={20}
+          height={20}
+          className="mr-2"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+        <span className="font-medium">{ticker}</span>
+      </div>
+      <button
+        onClick={onStarClick}
+        className={`p-2 rounded-full transition-colors ${
+          isStarred ? 'text-yellow-500' : 'text-gray-400 hover:text-gray-600'
+        }`}
+      >
+        <Star 
+          size={18} 
+          fill={isStarred ? 'currentColor' : 'none'} 
+          stroke={isStarred ? '#FFD700' : 'currentColor'} 
+          strokeWidth={2} 
+        />
+      </button>
+    </li>
+  );
+};
+
 const DaySection: React.FC<{ 
   entries: EarningEntry[]; 
   isPast: boolean;
   marketSession: 'pre' | 'after';
   minHeight?: number;
 }> = ({ entries, isPast, marketSession, minHeight }) => {
+  const [items, setItems] = useState(entries);
   const [starredTickers, setStarredTickers] = useState<string[]>([]);
 
   // Load starred tickers from localStorage on mount
@@ -59,6 +121,23 @@ const DaySection: React.FC<{
     );
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setItems((items) => {
+        const oldIndex = items.findIndex(item => item.ticker === active.id);
+        const newIndex = items.findIndex(item => item.ticker === over.id);
+
+        const newItems = [...items];
+        const [removed] = newItems.splice(oldIndex, 1);
+        newItems.splice(newIndex, 0, removed);
+
+        return newItems;
+      });
+    }
+  };
+
   if (entries.length === 0) {
     return (
       <Card className={`h-full relative ${isPast ? 'bg-gray-100 text-gray-500' : ''}`} style={{ minHeight }}>
@@ -75,45 +154,32 @@ const DaySection: React.FC<{
       style={{ minHeight }}
     >
       <CardContent>
-        <ul className="space-y-2">
-          {entries.map((entry, index) => {
-            const isStarred = starredTickers.includes(entry.ticker);
-            
-            return (
-              <li
-                key={index}
-                className="flex items-center text-sm justify-between group"
-              >
-                <div className="flex items-center">
-                  <Image
-                    src={`/company-logos/${entry.ticker}.svg`}
-                    alt={`${entry.ticker} logo`}
-                    width={20}
-                    height={20}
-                    className="mr-2"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
+        <DndContext 
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext 
+            items={items.map(item => item.ticker)}
+            strategy={verticalListSortingStrategy}
+          >
+            <ul className="space-y-2">
+              {items.map((entry) => {
+                const isStarred = starredTickers.includes(entry.ticker);
+                
+                return (
+                  <TickerItem
+                    key={entry.ticker}
+                    id={entry.ticker}
+                    ticker={entry.ticker}
+                    isStarred={isStarred}
+                    isPast={isPast}
+                    onStarClick={(e) => handleStarClick(e, entry.ticker)}
                   />
-                  <span className="font-medium">{entry.ticker}</span>
-                </div>
-                <button
-                  onClick={(e) => handleStarClick(e, entry.ticker)}
-                  className={`p-2 rounded-full transition-colors ${
-                    isStarred ? 'text-yellow-500' : 'text-gray-400 hover:text-gray-600'
-                  }`}
-                >
-                  <Star 
-                    size={18} 
-                    fill={isStarred ? 'currentColor' : 'none'} 
-                    stroke={isStarred ? '#FFD700' : 'currentColor'} 
-                    strokeWidth={2} 
-                  />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                );
+              })}
+            </ul>
+          </SortableContext>
+        </DndContext>
       </CardContent>
     </Card>
   );
@@ -144,7 +210,24 @@ const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[]; is
 };
 
 const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate: dayjs.Dayjs }> = ({ title, weekData, weekStartDate }) => {
+  const [localWeekData, setLocalWeekData] = useState(weekData);
   const today = dayjs();
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const [fromTicker] = active.id.toString().split('-');
+      const [toTicker] = over.id.toString().split('-');
+      
+      // Update the order in localWeekData
+      setLocalWeekData(prev => {
+        // Implementation of reordering logic here
+        // This would need to be customized based on your exact requirements
+        return prev;
+      });
+    }
+  };
 
   // Find maximum number of entries for sizing
   const maxPreMarketEntries = Math.max(
@@ -161,67 +244,69 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">{title}</h2>
-      <div className="relative flex">
-        {/* Market Session Labels */}
-        <div className="flex flex-col justify-start pt-24 pr-4 w-24">
-          <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start">Premarket</p>
-          <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start pt-4">Aftermarket</p>
+      <DndContext onDragEnd={handleDragEnd}>
+        <div className="relative flex">
+          {/* Market Session Labels */}
+          <div className="flex flex-col justify-start pt-24 pr-4 w-24">
+            <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start">Premarket</p>
+            <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start pt-4">Aftermarket</p>
+          </div>
+
+          <div className="flex-grow">
+            {/* Days of Week Headers */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+              {Object.entries(weekData).map(([day], index) => (
+                <p key={day} className="text-lg font-semibold text-center">{day}</p>
+              ))}
+            </div>
+
+            {/* Pre-Market Section */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-2">
+              {Object.entries(weekData).map(([day, entries], index) => {
+                const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
+                const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
+                const preMarketEntries = entries.filter(e => e.market_session === 'pre');
+                
+                return (
+                  <DaySection
+                    key={`pre-${day}`}
+                    entries={preMarketEntries}
+                    isPast={isPast}
+                    marketSession="pre"
+                    minHeight={maxPreMarketEntries * 40}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Dividing Line */}
+            <div className="relative py-2">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+
+            {/* After-Market Section */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-2">
+              {Object.entries(weekData).map(([day, entries], index) => {
+                const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
+                const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
+                const afterMarketEntries = entries.filter(e => 
+                  e.market_session === 'after' || e.market_session === null
+                );
+                
+                return (
+                  <DaySection
+                    key={`after-${day}`}
+                    entries={afterMarketEntries}
+                    isPast={isPast}
+                    marketSession="after"
+                    minHeight={maxAfterMarketEntries * 40}
+                  />
+                );
+              })}
+            </div>
+          </div>
         </div>
-
-        <div className="flex-grow">
-          {/* Days of Week Headers */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-            {Object.entries(weekData).map(([day], index) => (
-              <p key={day} className="text-lg font-semibold text-center">{day}</p>
-            ))}
-          </div>
-
-          {/* Pre-Market Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-2">
-            {Object.entries(weekData).map(([day, entries], index) => {
-              const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
-              const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
-              const preMarketEntries = entries.filter(e => e.market_session === 'pre');
-              
-              return (
-                <DaySection
-                  key={`pre-${day}`}
-                  entries={preMarketEntries}
-                  isPast={isPast}
-                  marketSession="pre"
-                  minHeight={maxPreMarketEntries * 40}
-                />
-              );
-            })}
-          </div>
-
-          {/* Dividing Line */}
-          <div className="relative py-2">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-
-          {/* After-Market Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-2">
-            {Object.entries(weekData).map(([day, entries], index) => {
-              const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
-              const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
-              const afterMarketEntries = entries.filter(e => 
-                e.market_session === 'after' || e.market_session === null
-              );
-              
-              return (
-                <DaySection
-                  key={`after-${day}`}
-                  entries={afterMarketEntries}
-                  isPast={isPast}
-                  marketSession="after"
-                  minHeight={maxAfterMarketEntries * 40}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      </DndContext>
     </div>
   );
 };
