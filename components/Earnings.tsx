@@ -33,27 +33,6 @@ const DaySection: React.FC<{
   marketSession: 'pre' | 'after';
   minHeight?: number;
 }> = ({ entries, isPast, marketSession, minHeight }) => {
-  const [highlighted, setHighlighted] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedHighlights = JSON.parse(localStorage.getItem("highlightedEarnings") || "[]");
-      setHighlighted(storedHighlights);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("highlightedEarnings", JSON.stringify(highlighted));
-  }, [highlighted]);
-
-  const toggleHighlight = (ticker: string) => {
-    setHighlighted(prev => 
-      prev.includes(ticker) 
-        ? prev.filter(item => item !== ticker)
-        : [...prev, ticker]
-    );
-  };
-
   if (entries.length === 0) {
     return (
       <Card className={`h-full relative ${isPast ? 'bg-gray-100 text-gray-500' : ''}`} style={{ minHeight }}>
@@ -72,12 +51,10 @@ const DaySection: React.FC<{
       <CardContent>
         <ul className="space-y-2">
           {entries.map((entry, index) => {
-            const isHighlighted = highlighted.includes(entry.ticker);
             return (
               <li
                 key={index}
-                className={`flex items-center justify-between text-sm cursor-pointer ${isHighlighted ? 'bg-purple-100' : ''}`}
-                onClick={() => toggleHighlight(entry.ticker)}
+                className="flex items-center text-sm"
               >
                 <div className="flex items-center">
                   <Image
@@ -92,11 +69,6 @@ const DaySection: React.FC<{
                   />
                   <span className="font-medium">{entry.ticker}</span>
                 </div>
-                {marketSession === 'pre' ? (
-                  <SunIcon className={`h-4 w-4 ${isPast ? 'text-gray-400' : 'text-yellow-500'}`} />
-                ) : (
-                  <MoonIcon className={`h-4 w-4 ${isPast ? 'text-gray-400' : 'text-blue-500'}`} />
-                )}
               </li>
             );
           })}
