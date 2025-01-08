@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -92,22 +92,32 @@ const DaySection: React.FC<{
   isPast: boolean;
   minHeight?: number;
 }> = ({ entries, isPast, minHeight }) => {
-  const [items, setItems] = useState(entries);
+  const [items, setItems] = useState<EarningEntry[]>(() => [...entries]);
+
   const [starredTickers, setStarredTickers] = useState<string[]>([]);
 
-  // Load starred tickers from localStorage on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("starredTickers");
-      if (stored) {
+    const stored = localStorage.getItem("starredTickers");
+    if (typeof window !== "undefined" && stored) {
+      try {
         setStarredTickers(JSON.parse(stored));
+      } catch (e) {
+        console.error('Error parsing stored tickers:', e);
+        setStarredTickers([]);
       }
     }
+
+    return () => {
+      // Cleanup function
+    };
   }, []);
 
-  // Save starred tickers to localStorage when changed
   useEffect(() => {
-    localStorage.setItem("starredTickers", JSON.stringify(starredTickers));
+    try {
+      localStorage.setItem("starredTickers", JSON.stringify(starredTickers));
+    } catch (e) {
+      console.error('Error storing tickers:', e);
+    }
   }, [starredTickers]);
 
   const handleStarClick = (e: MouseEvent, ticker: string) => {
@@ -123,18 +133,47 @@ const DaySection: React.FC<{
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex(item => item.ticker === active.id);
-        const newIndex = items.findIndex(item => item.ticker === over.id);
+      setItems((currentItems) => {
+        const oldIndex = currentItems.findIndex(item => item.ticker === active.id);
+        const newIndex = currentItems.findIndex(item => item.ticker === over.id);
 
-        const newItems = [...items];
+        const newItems = [...currentItems];
         const [removed] = newItems.splice(oldIndex, 1);
         newItems.splice(newIndex, 0, removed);
+
+        const key = `sortOrder-${entries[0]?.market_session}-${entries[0]?.ticker}`;
+        try {
+          localStorage.setItem(key, JSON.stringify(newItems.map(item => item.ticker)));
+        } catch (e) {
+          console.error('Error storing sort order:', e);
+        }
 
         return newItems;
       });
     }
   };
+
+  useEffect(() => {
+    if (entries.length > 0) {
+      const key = `sortOrder-${entries[0]?.market_session}-${entries[0]?.ticker}`;
+      try {
+        const savedOrder = localStorage.getItem(key);
+        if (savedOrder) {
+          const orderMap = JSON.parse(savedOrder);
+          const sortedItems = [...entries].sort((a, b) => {
+            const aIndex = orderMap.indexOf(a.ticker);
+            const bIndex = orderMap.indexOf(b.ticker);
+            if (aIndex === -1) return 1;
+            if (bIndex === -1) return -1;
+            return aIndex - bIndex;
+          });
+          setItems(sortedItems);
+        }
+      } catch (e) {
+        console.error('Error loading sort order:', e);
+      }
+    }
+  }, [entries]);
 
   if (entries.length === 0) {
     return (
@@ -185,14 +224,13 @@ const DaySection: React.FC<{
 const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate: dayjs.Dayjs }> = ({ title, weekData, weekStartDate }) => {
   const today = dayjs();
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      // Add your drag end logic here if needed
       console.log('Drag ended:', active.id, over.id);
     }
-  };
+  }, []);
 
   // Find maximum number of entries for sizing
   const maxPreMarketEntries = Math.max(
@@ -284,10 +322,18 @@ const Earnings: React.FC = () => {
 
   useEffect(() => {
     const fetchEarnings = async () => {
-      const response = await fetch('/api/earnings');
-      const data: EarningsData[] = await response.json();
-      setEarnings(data);
-      setLoading(false);
+      try {
+        const response = await fetch('/api/earnings');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: EarningsData[] = await response.json();
+        setEarnings(data);
+      } catch (error) {
+        console.error('Error fetching earnings:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchEarnings();
