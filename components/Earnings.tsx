@@ -228,41 +228,44 @@ const DaySection: React.FC<{
   );
 };
 
-const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate: dayjs.Dayjs }> = ({ title, weekData, weekStartDate }) => {
+const EarningsWeek: React.FC<{
+  title: string;
+  weekData: WeekData;
+  weekStartDate: dayjs.Dayjs;
+}> = ({ title, weekData, weekStartDate }) => {
   const today = dayjs();
 
-  // Find maximum number of entries for sizing
+  // Calculate max # of entries if you use them for minHeight
   const maxPreMarketEntries = Math.max(
-    ...Object.values(weekData).map(entries => 
-      entries.filter(e => e.market_session === 'pre').length
+    ...Object.values(weekData).map((entries) =>
+      entries.filter((e) => e.market_session === "pre").length
     )
   );
   const maxAfterMarketEntries = Math.max(
-    ...Object.values(weekData).map(entries => 
-      entries.filter(e => e.market_session === 'after' || e.market_session === null).length
+    ...Object.values(weekData).map((entries) =>
+      entries.filter((e) => e.market_session === "after" || e.market_session === null)
+        .length
     )
   );
 
   return (
     <div className="space-y-4">
+      {/* Black bar with the week's title */}
       <div className="bg-black text-white text-center py-1 w-full rounded-full">
         <h2 className="text-xl font-bold">{title}</h2>
       </div>
-      <div className="relative flex">
-        {/* Market Session Labels */}
-        <div className="flex flex-col justify-start pt-24 pr-4 w-24">
-          <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start">Premarket</p>
-          <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start pt-4">Aftermarket</p>
-        </div>
 
+      {/* ROW: Day-of-week headers (with date), plus left placeholder for alignment */}
+      <div className="flex">
+        {/* Placeholder to match the w-24 label column below */}
+        <div className="w-24" />
         <div className="flex-grow">
-          {/* Days of Week Headers */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4 text-center">
             {Object.entries(weekData).map(([day], index) => {
-              const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
+              const dayDate = weekStartDate.add(index, "day").format("MM/DD");
               return (
                 <Card key={day} className="bg-transparent shadow-none border-none">
-                  <CardHeader className="flex flex-col items-center p-0 space-y-1">
+                  <CardHeader className="flex flex-col items-center justify-center p-0 space-y-1">
                     <CardTitle className="text-lg font-semibold">{day}</CardTitle>
                     <p className="text-xs text-gray-400">{dayDate}</p>
                   </CardHeader>
@@ -270,47 +273,63 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
               );
             })}
           </div>
+        </div>
+      </div>
 
-          {/* Pre-Market Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-2">
-            {Object.entries(weekData).map(([day, entries], index) => {
-              const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
-              const preMarketEntries = entries.filter(e => e.market_session === 'pre');
-              
-              return (
-                <DaySection
-                  key={`pre-${day}`}
-                  entries={preMarketEntries}
-                  isPast={isPast}
-                  minHeight={maxPreMarketEntries * 40}
-                />
-              );
-            })}
-          </div>
+      {/* ========== PREMARKET ROW ========== */}
+      <div className="flex items-center mb-2">
+        {/* Label column on the left */}
+        <div className="w-24 pr-4 flex items-center justify-end">
+          <p className="text-sm font-medium text-gray-500">Premarket</p>
+        </div>
 
-          {/* Dividing Line */}
-          <div className="relative py-2">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
+        {/* Premarket day sections */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 flex-grow">
+          {Object.entries(weekData).map(([day, entries], index) => {
+            const isPast = weekStartDate.add(index, "day").isBefore(today, "day");
+            const preMarketEntries = entries.filter(
+              (e) => e.market_session === "pre"
+            );
+            return (
+              <DaySection
+                key={`pre-${day}`}
+                entries={preMarketEntries}
+                isPast={isPast}
+                minHeight={maxPreMarketEntries * 40}
+              />
+            );
+          })}
+        </div>
+      </div>
 
-          {/* After-Market Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-2">
-            {Object.entries(weekData).map(([day, entries], index) => {
-              const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
-              const afterMarketEntries = entries.filter(e => 
-                e.market_session === 'after' || e.market_session === null
-              );
-              
-              return (
-                <DaySection
-                  key={`after-${day}`}
-                  entries={afterMarketEntries}
-                  isPast={isPast}
-                  minHeight={maxAfterMarketEntries * 40}
-                />
-              );
-            })}
-          </div>
+      {/* Divider line */}
+      <div className="relative py-2">
+        <div className="w-full border-t border-gray-300" />
+      </div>
+
+      {/* ========== AFTERMARKET ROW ========== */}
+      <div className="flex items-center mt-2">
+        {/* Label column on the left */}
+        <div className="w-24 pr-4 flex items-center justify-end">
+          <p className="text-sm font-medium text-gray-500">Aftermarket</p>
+        </div>
+
+        {/* Aftermarket day sections */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 flex-grow">
+          {Object.entries(weekData).map(([day, entries], index) => {
+            const isPast = weekStartDate.add(index, "day").isBefore(today, "day");
+            const afterMarketEntries = entries.filter(
+              (e) => e.market_session === "after" || e.market_session === null
+            );
+            return (
+              <DaySection
+                key={`after-${day}`}
+                entries={afterMarketEntries}
+                isPast={isPast}
+                minHeight={maxAfterMarketEntries * 40}
+              />
+            );
+          })}
         </div>
       </div>
     </div>
