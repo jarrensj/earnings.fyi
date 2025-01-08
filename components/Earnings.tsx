@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { MouseEvent as ReactMouseEvent } from 'react';
 
 
 dayjs.extend(isoWeek);
@@ -33,7 +34,7 @@ type WeekData = {
 const TickerItem: React.FC<{
   ticker: string;
   isStarred: boolean;
-  onStarClick: (e: MouseEvent) => void;
+  onStarClick: (e: ReactMouseEvent<HTMLButtonElement>) => void;
   id: string;
 }> = ({ ticker, isStarred, onStarClick, id }) => {
   const {
@@ -169,7 +170,7 @@ const DaySection: React.FC<{
     }
   }, [starredTickers]);
 
-  const handleStarClick = (e: MouseEvent, ticker: string) => {
+  const handleStarClick = (e: ReactMouseEvent<HTMLButtonElement>, ticker: string) => {
     e.stopPropagation();
     setStarredTickers(prev => 
       prev.includes(ticker) 
