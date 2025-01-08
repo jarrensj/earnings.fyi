@@ -51,14 +51,16 @@ const TickerItem: React.FC<{
   };
 
   return (
-    <li
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="flex items-center text-sm justify-between group cursor-move"
+    <li 
+      ref={setNodeRef} 
+      style={style} 
+      className="flex items-center justify-between p-2"
     >
-      <div className="flex items-center">
+      <div
+        className="flex items-center cursor-move"
+        {...attributes}
+        {...listeners}
+      >
         <Image
           src={`/company-logos/${ticker}.svg`}
           alt={`${ticker} logo`}
@@ -71,6 +73,7 @@ const TickerItem: React.FC<{
         />
         <span className="font-medium">{ticker}</span>
       </div>
+
       <button
         onClick={onStarClick}
         className={`p-2 rounded-full transition-colors ${
@@ -79,7 +82,7 @@ const TickerItem: React.FC<{
       >
         <Star 
           size={18} 
-          fill={isStarred ? 'currentColor' : 'none'} 
+          fill={isStarred ? 'currentColor' : 'none'}
           stroke={isStarred ? '#FFD700' : 'currentColor'} 
           strokeWidth={2} 
         />
