@@ -5,12 +5,12 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SunIcon, MoonIcon, ClockIcon, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import Image from 'next/image';
-import { DndContext, DragEndEvent, useDraggable, useDroppable, closestCenter } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-//import { Button } from "@/components/ui/button";
+
 
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrAfter);
@@ -33,10 +33,9 @@ type WeekData = {
 const TickerItem: React.FC<{
   ticker: string;
   isStarred: boolean;
-  isPast: boolean;
   onStarClick: (e: MouseEvent) => void;
   id: string;
-}> = ({ ticker, isStarred, isPast, onStarClick, id }) => {
+}> = ({ ticker, isStarred, onStarClick, id }) => {
   const {
     attributes,
     listeners,
@@ -91,9 +90,8 @@ const TickerItem: React.FC<{
 const DaySection: React.FC<{ 
   entries: EarningEntry[]; 
   isPast: boolean;
-  marketSession: 'pre' | 'after';
   minHeight?: number;
-}> = ({ entries, isPast, marketSession, minHeight }) => {
+}> = ({ entries, isPast, minHeight }) => {
   const [items, setItems] = useState(entries);
   const [starredTickers, setStarredTickers] = useState<string[]>([]);
 
@@ -172,7 +170,6 @@ const DaySection: React.FC<{
                     id={entry.ticker}
                     ticker={entry.ticker}
                     isStarred={isStarred}
-                    isPast={isPast}
                     onStarClick={(e) => handleStarClick(e, entry.ticker)}
                   />
                 );
@@ -197,12 +194,10 @@ const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[]; is
         <DaySection 
           entries={preMarketEntries} 
           isPast={isPast}
-          marketSession="pre"
         />
         <DaySection 
           entries={afterMarketEntries} 
           isPast={isPast}
-          marketSession="after"
         />
       </div>
     </div>
@@ -210,22 +205,14 @@ const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[]; is
 };
 
 const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate: dayjs.Dayjs }> = ({ title, weekData, weekStartDate }) => {
-  const [localWeekData, setLocalWeekData] = useState(weekData);
   const today = dayjs();
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      const [fromTicker] = active.id.toString().split('-');
-      const [toTicker] = over.id.toString().split('-');
-      
-      // Update the order in localWeekData
-      setLocalWeekData(prev => {
-        // Implementation of reordering logic here
-        // This would need to be customized based on your exact requirements
-        return prev;
-      });
+      // Add your drag end logic here if needed
+      console.log('Drag ended:', active.id, over.id);
     }
   };
 
@@ -256,12 +243,10 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
             {/* Days of Week Headers */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
               {Object.entries(weekData).map(([day, entries], index) => {
-                const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
                 return (
                   <Card key={day} className="bg-transparent shadow-none border-none">
                     <CardHeader className="flex flex-col items-center p-0 space-y-1">
                       <CardTitle className="text-lg font-semibold">{day}</CardTitle>
-                      <p className="text-xs text-gray-400">{dayDate}</p>
                     </CardHeader>
                   </Card>
                 );
@@ -271,7 +256,6 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
             {/* Pre-Market Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-2">
               {Object.entries(weekData).map(([day, entries], index) => {
-                const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
                 const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
                 const preMarketEntries = entries.filter(e => e.market_session === 'pre');
                 
@@ -280,7 +264,6 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
                     key={`pre-${day}`}
                     entries={preMarketEntries}
                     isPast={isPast}
-                    marketSession="pre"
                     minHeight={maxPreMarketEntries * 40}
                   />
                 );
@@ -295,7 +278,6 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
             {/* After-Market Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-2">
               {Object.entries(weekData).map(([day, entries], index) => {
-                const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
                 const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
                 const afterMarketEntries = entries.filter(e => 
                   e.market_session === 'after' || e.market_session === null
@@ -306,7 +288,6 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
                     key={`after-${day}`}
                     entries={afterMarketEntries}
                     isPast={isPast}
-                    marketSession="after"
                     minHeight={maxAfterMarketEntries * 40}
                   />
                 );
