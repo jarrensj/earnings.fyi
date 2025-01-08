@@ -245,7 +245,9 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">{title}</h2>
+      <div className="bg-black text-white text-center py-1 w-full rounded-full">
+        <h2 className="text-xl font-bold">{title}</h2>
+      </div>
       <div className="relative flex">
         {/* Market Session Labels */}
         <div className="flex flex-col justify-start pt-24 pr-4 w-24">
