@@ -182,28 +182,6 @@ const DaySection: React.FC<{
   );
 };
 
-const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[]; isPast: boolean }> = ({ day, date, entries, isPast }) => {
-  const preMarketEntries = entries.filter(entry => entry.market_session === 'pre');
-  const afterMarketEntries = entries.filter(entry => entry.market_session === 'after' || entry.market_session === null);
-
-  return (
-    <div className="space-y-4">
-      <p className="text-lg font-semibold">{day}</p>
-      <p className="text-xs text-gray-400 mb-2">{date}</p>
-      <div className="grid gap-4">
-        <DaySection 
-          entries={preMarketEntries} 
-          isPast={isPast}
-        />
-        <DaySection 
-          entries={afterMarketEntries} 
-          isPast={isPast}
-        />
-      </div>
-    </div>
-  );
-};
-
 const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate: dayjs.Dayjs }> = ({ title, weekData, weekStartDate }) => {
   const today = dayjs();
 
@@ -242,15 +220,13 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
           <div className="flex-grow">
             {/* Days of Week Headers */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-              {Object.entries(weekData).map(([day, entries], index) => {
-                return (
-                  <Card key={day} className="bg-transparent shadow-none border-none">
-                    <CardHeader className="flex flex-col items-center p-0 space-y-1">
-                      <CardTitle className="text-lg font-semibold">{day}</CardTitle>
-                    </CardHeader>
-                  </Card>
-                );
-              })}
+              {Object.entries(weekData).map(([day]) => (
+                <Card key={day} className="bg-transparent shadow-none border-none">
+                  <CardHeader className="flex flex-col items-center p-0 space-y-1">
+                    <CardTitle className="text-lg font-semibold">{day}</CardTitle>
+                  </CardHeader>
+                </Card>
+              ))}
             </div>
 
             {/* Pre-Market Section */}
@@ -303,7 +279,7 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
 const Earnings: React.FC = () => {
   const [earnings, setEarnings] = useState<EarningsData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [showLastWeek, setShowLastWeek] = useState<boolean>(false);
+  const [showLastWeek] = useState<boolean>(false);
   const [currentDateTime, setCurrentDateTime] = useState(dayjs());
 
   useEffect(() => {
