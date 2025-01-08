@@ -255,9 +255,17 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
           <div className="flex-grow">
             {/* Days of Week Headers */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-              {Object.entries(weekData).map(([day], index) => (
-                <p key={day} className="text-lg font-semibold text-center">{day}</p>
-              ))}
+              {Object.entries(weekData).map(([day, entries], index) => {
+                const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
+                return (
+                  <Card key={day} className="bg-transparent shadow-none border-none">
+                    <CardHeader className="flex flex-col items-center p-0 space-y-1">
+                      <CardTitle className="text-lg font-semibold">{day}</CardTitle>
+                      <p className="text-xs text-gray-400">{dayDate}</p>
+                    </CardHeader>
+                  </Card>
+                );
+              })}
             </div>
 
             {/* Pre-Market Section */}
