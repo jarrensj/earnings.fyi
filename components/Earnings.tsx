@@ -93,8 +93,57 @@ const DaySection: React.FC<{
   minHeight?: number;
 }> = ({ entries, isPast, minHeight }) => {
   const [items, setItems] = useState<EarningEntry[]>(() => [...entries]);
-
   const [starredTickers, setStarredTickers] = useState<string[]>([]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setItems((currentItems) => {
+        const oldIndex = currentItems.findIndex(item => item.ticker === active.id);
+        const newIndex = currentItems.findIndex(item => item.ticker === over.id);
+
+        const newItems = [...currentItems];
+        const [removed] = newItems.splice(oldIndex, 1);
+        newItems.splice(newIndex, 0, removed);
+
+        try {
+          const key = `sortOrder-${entries[0]?.market_session}-${dayjs().format('YYYY-MM-DD')}`;
+          localStorage.setItem(key, JSON.stringify(newItems.map(item => item.ticker)));
+        } catch (e) {
+          console.error('Error storing sort order:', e);
+        }
+
+        return newItems;
+      });
+    }
+  };
+
+  // Load saved sort order on mount
+  useEffect(() => {
+    if (entries.length > 0) {
+      try {
+        const key = `sortOrder-${entries[0]?.market_session}-${dayjs().format('YYYY-MM-DD')}`;
+        const savedOrder = localStorage.getItem(key);
+        if (savedOrder) {
+          const orderMap = JSON.parse(savedOrder);
+          const sortedItems = [...entries].sort((a, b) => {
+            const aIndex = orderMap.indexOf(a.ticker);
+            const bIndex = orderMap.indexOf(b.ticker);
+            if (aIndex === -1) return 1;
+            if (bIndex === -1) return -1;
+            return aIndex - bIndex;
+          });
+          setItems(sortedItems);
+        } else {
+          setItems(entries);
+        }
+      } catch (e) {
+        console.error('Error loading sort order:', e);
+        setItems(entries);
+      }
+    }
+  }, [entries]);
 
   useEffect(() => {
     const stored = localStorage.getItem("starredTickers");
@@ -128,52 +177,6 @@ const DaySection: React.FC<{
         : [...prev, ticker]
     );
   };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      setItems((currentItems) => {
-        const oldIndex = currentItems.findIndex(item => item.ticker === active.id);
-        const newIndex = currentItems.findIndex(item => item.ticker === over.id);
-
-        const newItems = [...currentItems];
-        const [removed] = newItems.splice(oldIndex, 1);
-        newItems.splice(newIndex, 0, removed);
-
-        const key = `sortOrder-${entries[0]?.market_session}-${entries[0]?.ticker}`;
-        try {
-          localStorage.setItem(key, JSON.stringify(newItems.map(item => item.ticker)));
-        } catch (e) {
-          console.error('Error storing sort order:', e);
-        }
-
-        return newItems;
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (entries.length > 0) {
-      const key = `sortOrder-${entries[0]?.market_session}-${entries[0]?.ticker}`;
-      try {
-        const savedOrder = localStorage.getItem(key);
-        if (savedOrder) {
-          const orderMap = JSON.parse(savedOrder);
-          const sortedItems = [...entries].sort((a, b) => {
-            const aIndex = orderMap.indexOf(a.ticker);
-            const bIndex = orderMap.indexOf(b.ticker);
-            if (aIndex === -1) return 1;
-            if (bIndex === -1) return -1;
-            return aIndex - bIndex;
-          });
-          setItems(sortedItems);
-        }
-      } catch (e) {
-        console.error('Error loading sort order:', e);
-      }
-    }
-  }, [entries]);
 
   if (entries.length === 0) {
     return (
@@ -224,14 +227,6 @@ const DaySection: React.FC<{
 const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate: dayjs.Dayjs }> = ({ title, weekData, weekStartDate }) => {
   const today = dayjs();
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    if (over && active.id !== over.id) {
-      console.log('Drag ended:', active.id, over.id);
-    }
-  }, []);
-
   // Find maximum number of entries for sizing
   const maxPreMarketEntries = Math.max(
     ...Object.values(weekData).map(entries => 
@@ -247,69 +242,67 @@ const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate:
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">{title}</h2>
-      <DndContext onDragEnd={handleDragEnd}>
-        <div className="relative flex">
-          {/* Market Session Labels */}
-          <div className="flex flex-col justify-start pt-24 pr-4 w-24">
-            <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start">Premarket</p>
-            <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start pt-4">Aftermarket</p>
+      <div className="relative flex">
+        {/* Market Session Labels */}
+        <div className="flex flex-col justify-start pt-24 pr-4 w-24">
+          <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start">Premarket</p>
+          <p className="text-sm font-medium text-gray-500 h-[50%] flex items-start pt-4">Aftermarket</p>
+        </div>
+
+        <div className="flex-grow">
+          {/* Days of Week Headers */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+            {Object.entries(weekData).map(([day]) => (
+              <Card key={day} className="bg-transparent shadow-none border-none">
+                <CardHeader className="flex flex-col items-center p-0 space-y-1">
+                  <CardTitle className="text-lg font-semibold">{day}</CardTitle>
+                </CardHeader>
+              </Card>
+            ))}
           </div>
 
-          <div className="flex-grow">
-            {/* Days of Week Headers */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-              {Object.entries(weekData).map(([day]) => (
-                <Card key={day} className="bg-transparent shadow-none border-none">
-                  <CardHeader className="flex flex-col items-center p-0 space-y-1">
-                    <CardTitle className="text-lg font-semibold">{day}</CardTitle>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
+          {/* Pre-Market Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-2">
+            {Object.entries(weekData).map(([day, entries], index) => {
+              const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
+              const preMarketEntries = entries.filter(e => e.market_session === 'pre');
+              
+              return (
+                <DaySection
+                  key={`pre-${day}`}
+                  entries={preMarketEntries}
+                  isPast={isPast}
+                  minHeight={maxPreMarketEntries * 40}
+                />
+              );
+            })}
+          </div>
 
-            {/* Pre-Market Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-2">
-              {Object.entries(weekData).map(([day, entries], index) => {
-                const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
-                const preMarketEntries = entries.filter(e => e.market_session === 'pre');
-                
-                return (
-                  <DaySection
-                    key={`pre-${day}`}
-                    entries={preMarketEntries}
-                    isPast={isPast}
-                    minHeight={maxPreMarketEntries * 40}
-                  />
-                );
-              })}
-            </div>
+          {/* Dividing Line */}
+          <div className="relative py-2">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
 
-            {/* Dividing Line */}
-            <div className="relative py-2">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-
-            {/* After-Market Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-2">
-              {Object.entries(weekData).map(([day, entries], index) => {
-                const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
-                const afterMarketEntries = entries.filter(e => 
-                  e.market_session === 'after' || e.market_session === null
-                );
-                
-                return (
-                  <DaySection
-                    key={`after-${day}`}
-                    entries={afterMarketEntries}
-                    isPast={isPast}
-                    minHeight={maxAfterMarketEntries * 40}
-                  />
-                );
-              })}
-            </div>
+          {/* After-Market Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-2">
+            {Object.entries(weekData).map(([day, entries], index) => {
+              const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
+              const afterMarketEntries = entries.filter(e => 
+                e.market_session === 'after' || e.market_session === null
+              );
+              
+              return (
+                <DaySection
+                  key={`after-${day}`}
+                  entries={afterMarketEntries}
+                  isPast={isPast}
+                  minHeight={maxAfterMarketEntries * 40}
+                />
+              );
+            })}
           </div>
         </div>
-      </DndContext>
+      </div>
     </div>
   );
 };
