@@ -1,27 +1,27 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface EarningsData {
-    ticker: string;
-    earnings_date: string;
-    market_session: string | null;
-  }
+//*interface EarningsData {
+//*    ticker: string;
+//*    earnings_date: string;
+//*    market_session: string | null;
+//*  }
   
-  type EarningEntry = {
+type EarningEntry = {
     ticker: string;
     market_session: 'pre' | 'after' | null;
-  };
-  
-  type WeekData = {
+};
+
+type WeekData = {
     [key: string]: EarningEntry[];
-  };
+};
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 export default function Earnings() {
-    const [weekData, setWeekData] = useState<WeekData>({});
+    const [weekData] = useState<WeekData>({});
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
