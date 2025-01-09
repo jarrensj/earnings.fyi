@@ -1,11 +1,11 @@
 # Privacy Policy
 _Last Updated: January 1st, 2025_
 ## 1. Introduction
-This Privacy Policy explains how StandupUpdate.com ("we," "our," "us") collects, uses, and protects your information when you use our Website.
+This Privacy Policy explains how earnings.fyi ("we," "our," "us") collects, uses, and protects your information when you use our Website.
 ## 2. Information We Collect
 - **Personal Information**: When you sign in or register, we may collect information such as your name, email address, and authentication credentials.
-- **Standup Updates**: We store the standup updates you create on the Website.
-- **Technical Data**: We collect information about your device, browser, and IP address for security and analytics purposes.
+- **User Preferences**: We store the favorites you select and the customized sorting preferences you set on the Website.
+- **Technical Data**: We collect information about your device, browser, and IP address for security and analytics purposes. We may use cookies or tracking technologies for referral links and affiliate programs.
 ## 3. How We Use Your Information
 - To provide and improve the Website's functionality.
 - To communicate with you regarding updates or support requests.
@@ -26,7 +26,7 @@ Depending on your location, you may have the following rights regarding your dat
 - Request deletion of your data.
 - Opt-out of certain data processing practices.
 ## 9. Children's Privacy
-StandupUpdate.com is not intended for users under the age of 13. We do not knowingly collect personal information from children.
+earnings.fyi is not intended for users under the age of 13. We do not knowingly collect personal information from children.
 ## 10. Changes to This Policy
 We may update this Privacy Policy from time to time. Changes will be posted on this page, and significant updates may be communicated via email or a notification on the Website.
 ## 11. Contact Us
