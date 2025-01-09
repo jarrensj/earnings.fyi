@@ -1,1 +1,47 @@
-[]
+[
+    {
+      "ticker": "NIO",
+      "earnings_date": "2025-01-06",
+      "market_session": "pre"
+    },
+    {
+      "ticker": "AVGO",
+      "earnings_date": "2025-01-06",
+      "market_session": "after"
+    },
+    {
+      "ticker": "DOCU",
+      "earnings_date": "2025-01-07",
+      "market_session": "after"
+    },
+    {
+      "ticker": "SMAR",
+      "earnings_date": "2025-01-07",
+      "market_session": "after"
+    },
+    {
+      "ticker": "MU",
+      "earnings_date": "2025-01-08",
+      "market_session": "after"
+    },
+    {
+      "ticker": "KMX",
+      "earnings_date": "2025-01-08",
+      "market_session": "pre"
+    },
+    {
+      "ticker": "COST",
+      "earnings_date": "2025-01-09",
+      "market_session": "after"
+    },
+    {
+      "ticker": "BB",
+      "earnings_date": "2025-01-09",
+      "market_session": "after"
+    },
+    {
+      "ticker": "MKC",
+      "earnings_date": "2025-01-10",
+      "market_session": "pre"
+    }
+]
