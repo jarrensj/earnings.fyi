@@ -1,1 +1,47 @@
-[]
+[
+    {
+      "ticker": "TEST1",
+      "earnings_date": "2025-01-06",
+      "market_session": "pre"
+    },
+    {
+      "ticker": "TEST2",
+      "earnings_date": "2025-01-06",
+      "market_session": "after"
+    },
+    {
+      "ticker": "TEST3",
+      "earnings_date": "2025-01-07",
+      "market_session": "after"
+    },
+    {
+      "ticker": "TEST4",
+      "earnings_date": "2025-01-07",
+      "market_session": "after"
+    },
+    {
+      "ticker": "TEST5",
+      "earnings_date": "2025-01-08",
+      "market_session": "after"
+    },
+    {
+      "ticker": "TEST6",
+      "earnings_date": "2025-01-08",
+      "market_session": "pre"
+    },
+    {
+      "ticker": "TEST7",
+      "earnings_date": "2025-01-09",
+      "market_session": "after"
+    },
+    {
+      "ticker": "TEST8",
+      "earnings_date": "2025-01-09",
+      "market_session": "after"
+    },
+    {
+      "ticker": "TEST9",
+      "earnings_date": "2025-01-10",
+      "market_session": "pre"
+    }
+]
