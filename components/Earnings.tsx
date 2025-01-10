@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Star } from "lucide-react";
 
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrAfter);
@@ -24,7 +25,13 @@ type WeekData = {
   [key: string]: EarningEntry[];
 };
 
-const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[] }> = ({ day, date, entries }) => {
+const DayCard: React.FC<{ 
+  day: string; 
+  date: string; 
+  entries: EarningEntry[];
+  favorites: string[];
+  onToggleFavorite: (ticker: string) => void;
+}> = ({ day, date, entries, favorites, onToggleFavorite }) => {
   const sessionOrder = ['pre', 'after', null];
   const sortedEntries = [...entries].sort((a, b) => {
     return sessionOrder.indexOf(a.market_session) - sessionOrder.indexOf(b.market_session);
@@ -42,11 +49,23 @@ const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[] }> 
             {sortedEntries.map((entry, index) => (
               <li
                 key={index}
-                className="flex items-center text-sm"
+                className="flex items-center justify-between text-sm"
               >
                 <div className="flex items-center">
                   <span className="font-medium">{entry.ticker}</span>
                 </div>
+                <button 
+                  onClick={() => onToggleFavorite(entry.ticker)}
+                  className="ml-2 focus:outline-none"
+                >
+                  <Star 
+                    className={`h-4 w-4 ${
+                      favorites.includes(entry.ticker) 
+                        ? 'fill-yellow-400 text-yellow-400' 
+                        : 'text-gray-400'
+                    }`}
+                  />
+                </button>
               </li>
             ))}
           </ul>
@@ -58,14 +77,20 @@ const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[] }> 
   );
 };
 
-const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate: dayjs.Dayjs }> = ({ title, weekData, weekStartDate }) => {
+const EarningsWeek: React.FC<{ 
+  title: string; 
+  weekData: WeekData; 
+  weekStartDate: dayjs.Dayjs;
+  favorites: string[];
+  onToggleFavorite: (ticker: string) => void;
+}> = ({ title, weekData, weekStartDate, favorites, onToggleFavorite }) => {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">{title}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {Object.entries(weekData).map(([day, entries], index) => {
           const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
-          return <DayCard key={day} day={day} date={dayDate} entries={entries} />;
+          return <DayCard key={day} day={day} date={dayDate} entries={entries} favorites={favorites} onToggleFavorite={onToggleFavorite} />;
         })}
       </div>
     </div>
@@ -77,6 +102,23 @@ const Earnings: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showLastWeek] = useState<boolean>(false);
   const [currentDateTime, setCurrentDateTime] = useState(dayjs());
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('favorites');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  const toggleFavorite = (ticker: string) => {
+    setFavorites(prev => {
+      const newFavorites = prev.includes(ticker)
+        ? prev.filter(t => t !== ticker)
+        : [...prev, ticker];
+      localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+  };
 
   useEffect(() => {
     const fetchEarnings = async () => {
@@ -166,7 +208,13 @@ const Earnings: React.FC = () => {
 
         return (
           <div key={weekKey} className="space-y-8 mb-6">
-            <EarningsWeek title={`${dateRange}`} weekData={weeks[weekKey]} weekStartDate={weekStart} />
+            <EarningsWeek 
+              title={`${dateRange}`}
+              weekData={weeks[weekKey]}
+              weekStartDate={weekStart}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+            />
           </div>
         );
       })}
