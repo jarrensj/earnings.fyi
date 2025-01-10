@@ -24,7 +24,7 @@ type WeekData = {
   [key: string]: EarningEntry[];
 };
 
-const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[], isPast: boolean }> = ({ day, date, entries, isPast }) => {
+const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[], isPast: boolean }> = ({ day, entries, isPast }) => {
   const sessionOrder = ['pre', 'after', null];
   const sortedEntries = [...entries].sort((a, b) => {
     return sessionOrder.indexOf(a.market_session) - sessionOrder.indexOf(b.market_session);
