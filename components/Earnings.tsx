@@ -24,15 +24,15 @@ type WeekData = {
   [key: string]: EarningEntry[];
 };
 
-const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[] }> = ({ day, date, entries }) => {
+const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[], isPast: boolean }> = ({ day, entries, isPast }) => {
   const sessionOrder = ['pre', 'after', null];
   const sortedEntries = [...entries].sort((a, b) => {
     return sessionOrder.indexOf(a.market_session) - sessionOrder.indexOf(b.market_session);
   });
 
   return (
-    <Card className="h-full relative">
-      <p className="absolute top-2 left-2 text-xs text-gray-400">{date}</p>
+    <Card className={`"h-full relative" ${isPast ? 'bg-gray-100 text-gray-500' : ""}`} >
+      <p className="absolute top-2 left-2 text-xs text-gray-400"></p>
       <CardHeader className="pt-6">
         <CardTitle className="text-lg font-semibold">{day}</CardTitle>
       </CardHeader>
@@ -59,13 +59,16 @@ const DayCard: React.FC<{ day: string; date: string; entries: EarningEntry[] }> 
 };
 
 const EarningsWeek: React.FC<{ title: string; weekData: WeekData; weekStartDate: dayjs.Dayjs }> = ({ title, weekData, weekStartDate }) => {
-  return (
+    const today = dayjs();
+  
+    return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">{title}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {Object.entries(weekData).map(([day, entries], index) => {
           const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
-          return <DayCard key={day} day={day} date={dayDate} entries={entries} />;
+          const isPast = weekStartDate.add(index, 'day').isBefore(today, 'day');
+          return <DayCard key={day} day={day} date={dayDate} entries={entries} isPast={isPast} />;
         })}
       </div>
     </div>
