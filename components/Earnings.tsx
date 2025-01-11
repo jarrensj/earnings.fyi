@@ -4,8 +4,7 @@ import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star } from "lucide-react";
+import EarningsWeek from '@/components/EarningsWeek';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrAfter);
@@ -23,78 +22,6 @@ type EarningEntry = {
 
 type WeekData = {
   [key: string]: EarningEntry[];
-};
-
-const DayCard: React.FC<{ 
-  day: string; 
-  date: string; 
-  entries: EarningEntry[];
-  favorites: string[];
-  onToggleFavorite: (ticker: string) => void;
-}> = ({ day, date, entries, favorites, onToggleFavorite }) => {
-  const sessionOrder = ['pre', 'after', null];
-  const sortedEntries = [...entries].sort((a, b) => {
-    return sessionOrder.indexOf(a.market_session) - sessionOrder.indexOf(b.market_session);
-  });
-
-  return (
-    <Card className="h-full relative shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <p className="absolute top-2 left-2 text-xs text-gray-400">{date}</p>
-      <CardHeader className="pt-6">
-        <CardTitle className="text-lg font-semibold text-gray-800">{day}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {sortedEntries.length > 0 ? (
-          <ul className="space-y-2">
-            {sortedEntries.map((entry, index) => (
-              <li
-                key={index}
-                className="flex items-center justify-between text-sm text-gray-700"
-              >
-                <div className="flex items-center">
-                  <span className="font-medium">{entry.ticker}</span>
-                </div>
-                <button 
-                  onClick={() => onToggleFavorite(entry.ticker)}
-                  className="ml-2 focus:outline-none hover:text-yellow-500 transition-colors duration-200"
-                >
-                  <Star 
-                    className={`h-4 w-4 ${
-                      favorites.includes(entry.ticker) 
-                        ? 'fill-yellow-400 text-yellow-400' 
-                        : 'text-gray-400'
-                    }`}
-                  />
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-gray-500"></p>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
-
-const EarningsWeek: React.FC<{ 
-  title: string; 
-  weekData: WeekData; 
-  weekStartDate: dayjs.Dayjs;
-  favorites: string[];
-  onToggleFavorite: (ticker: string) => void;
-}> = ({ title, weekData, weekStartDate, favorites, onToggleFavorite }) => {
-  return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">{title}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {Object.entries(weekData).map(([day, entries], index) => {
-          const dayDate = weekStartDate.add(index, 'day').format('MM/DD');
-          return <DayCard key={day} day={day} date={dayDate} entries={entries} favorites={favorites} onToggleFavorite={onToggleFavorite} />;
-        })}
-      </div>
-    </div>
-  );
 };
 
 const Earnings: React.FC = () => {
