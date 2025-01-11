@@ -1,3 +1,5 @@
+'use client'
+
 import Earnings from "@/components/Earnings";
 import Footer from "@/components/Footer";
 
