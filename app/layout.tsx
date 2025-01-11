@@ -49,12 +49,14 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
-          <SignedOut>
-            <SignInButton />
-          </SignedOut>
+          <div className="fixed top-4 right-4">
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+          </div>
           {children}
         </body>
       </html>
