@@ -38,10 +38,10 @@ const DayCard: React.FC<{
   });
 
   return (
-    <Card className="h-full relative">
+    <Card className="h-full relative shadow-lg hover:shadow-xl transition-shadow duration-300">
       <p className="absolute top-2 left-2 text-xs text-gray-400">{date}</p>
       <CardHeader className="pt-6">
-        <CardTitle className="text-lg font-semibold">{day}</CardTitle>
+        <CardTitle className="text-lg font-semibold text-gray-800">{day}</CardTitle>
       </CardHeader>
       <CardContent>
         {sortedEntries.length > 0 ? (
@@ -49,14 +49,14 @@ const DayCard: React.FC<{
             {sortedEntries.map((entry, index) => (
               <li
                 key={index}
-                className="flex items-center justify-between text-sm"
+                className="flex items-center justify-between text-sm text-gray-700"
               >
                 <div className="flex items-center">
                   <span className="font-medium">{entry.ticker}</span>
                 </div>
                 <button 
                   onClick={() => onToggleFavorite(entry.ticker)}
-                  className="ml-2 focus:outline-none"
+                  className="ml-2 focus:outline-none hover:text-yellow-500 transition-colors duration-200"
                 >
                   <Star 
                     className={`h-4 w-4 ${
