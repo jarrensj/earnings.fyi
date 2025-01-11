@@ -105,8 +105,7 @@ const Earnings: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showLastWeek] = useState<boolean>(false);
   const [currentDateTime, setCurrentDateTime] = useState(dayjs());
-  const { user, isLoaded } = useUser();
-  const user_id = user?.id;
+  const { user } = useUser();
 
   const fetchEarnings = async () => {
     try {
@@ -179,7 +178,7 @@ const Earnings: React.FC = () => {
 
   useEffect(() => {
     fetchEarnings();
-  }, [user]);
+  }, [user, fetchEarnings]);
 
   useEffect(() => {
     const timer = setInterval(() => {
