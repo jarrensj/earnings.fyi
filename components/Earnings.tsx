@@ -101,7 +101,6 @@ const Earnings: React.FC = () => {
   const [earnings, setEarnings] = useState<EarningsData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showLastWeek] = useState<boolean>(false);
-  const [currentDateTime, setCurrentDateTime] = useState(dayjs());
   const [favorites, setFavorites] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('favorites');
@@ -129,14 +128,6 @@ const Earnings: React.FC = () => {
     };
 
     fetchEarnings();
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentDateTime(dayjs());
-    }, 1000);
-
-    return () => clearInterval(timer);
   }, []);
 
   if (loading) {
@@ -197,9 +188,6 @@ const Earnings: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <p className="text-center text-sm text-gray-600">
-        {currentDateTime.format('MMMM D, YYYY h:mm:ss A')}
-      </p>
       {allWeeks.map((weekKey) => {
         const [weekNum, year] = weekKey.split('-').map(Number);
         const weekStart = dayjs().year(year).isoWeek(weekNum).startOf('isoWeek'); // Monday
