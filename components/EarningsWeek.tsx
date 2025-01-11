@@ -1,15 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import DayCard from '@/components/DayCard';
-
-type EarningEntry = {
-  ticker: string;
-  market_session: 'pre' | 'after' | null;
-};
-
-type WeekData = {
-  [key: string]: EarningEntry[];
-};
+import { WeekData } from '@/types/types';
 
 interface EarningsWeekProps {
   title: string;

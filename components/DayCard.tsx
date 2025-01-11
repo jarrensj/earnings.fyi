@@ -1,11 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star } from "lucide-react";
-
-type EarningEntry = {
-  ticker: string;
-  market_session: 'pre' | 'after' | null;
-};
+import { EarningEntry } from '@/types/types';
 
 interface DayCardProps {
   day: string;
