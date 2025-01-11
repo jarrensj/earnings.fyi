@@ -101,7 +101,6 @@ const Earnings: React.FC = () => {
   const [earnings, setEarnings] = useState<EarningsData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showLastWeek] = useState<boolean>(false);
-  const [currentDateTime, setCurrentDateTime] = useState(dayjs());
   const [favorites, setFavorites] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('favorites');
@@ -129,14 +128,6 @@ const Earnings: React.FC = () => {
     };
 
     fetchEarnings();
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentDateTime(dayjs());
-    }, 1000);
-
-    return () => clearInterval(timer);
   }, []);
 
   if (loading) {
