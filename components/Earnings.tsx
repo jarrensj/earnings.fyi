@@ -6,6 +6,8 @@ import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+
 
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrAfter);
@@ -14,6 +16,7 @@ interface EarningsData {
   ticker: string;
   earnings_date: string;
   market_session: string | null;
+  isStarred?: boolean;
 }
 
 type EarningEntry = {
@@ -102,6 +105,40 @@ const Earnings: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showLastWeek] = useState<boolean>(false);
   const [currentDateTime, setCurrentDateTime] = useState(dayjs());
+  const { user, isLoaded } = useUser();
+  const user_id = user?.id;
+
+  const fetchEarnings = async () => {
+    try {
+      if (user) {
+        const response = await fetch(`/api/earnings?user_id=${user.id}`);
+        if (!response.ok) {
+          throw new Error(`Error fetching earnings: ${response.statusText}`);
+        }
+        const data: EarningsData[] = await response.json();
+        setEarnings(data);
+        
+        const starredTickers = data
+          .filter(item => item.isStarred)
+          .map(item => item.ticker);
+        setFavorites(starredTickers);
+        
+      } else {
+        const response = await fetch('/api/earnings');
+        if (!response.ok) {
+          throw new Error(`Error fetching fallback earnings: ${response.statusText}`);
+        }
+        const data: EarningsData[] = await response.json();
+        setEarnings(data);
+      }
+    } catch (error) {
+      console.error("Error fetching earnings:", error);
+      setEarnings([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const [favorites, setFavorites] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('favorites');
@@ -110,26 +147,39 @@ const Earnings: React.FC = () => {
     return [];
   });
 
-  const toggleFavorite = (ticker: string) => {
-    setFavorites(prev => {
-      const newFavorites = prev.includes(ticker)
-        ? prev.filter(t => t !== ticker)
-        : [...prev, ticker];
-      localStorage.setItem('favorites', JSON.stringify(newFavorites));
-      return newFavorites;
-    });
+  const toggleFavorite = async (ticker: string) => {
+    if (user) {
+      const isFavorite = favorites.includes(ticker);
+      const method = isFavorite ? 'DELETE' : 'POST';
+      try {
+        const response = await fetch('/api/earnings', {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: user.id, ticker }),
+        });
+        if (response.ok) {
+          setFavorites((prev) =>
+            isFavorite ? prev.filter((fav) => fav !== ticker) : [...prev, ticker]
+          );
+          await fetchEarnings();
+        }
+      } catch (error) {
+        console.error('Error updating favorites:', error);
+      }
+    } else {
+      setFavorites((prev) => {
+        const newFavorites = prev.includes(ticker)
+          ? prev.filter((fav) => fav !== ticker)
+          : [...prev, ticker];
+        localStorage.setItem('favorites', JSON.stringify(newFavorites));
+        return newFavorites;
+      });
+    }
   };
 
   useEffect(() => {
-    const fetchEarnings = async () => {
-      const response = await fetch('/api/earnings');
-      const data: EarningsData[] = await response.json();
-      setEarnings(data);
-      setLoading(false);
-    };
-
     fetchEarnings();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const timer = setInterval(() => {
