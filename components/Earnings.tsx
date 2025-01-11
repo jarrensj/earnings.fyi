@@ -197,9 +197,6 @@ const Earnings: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <p className="text-center text-sm text-gray-600">
-        {currentDateTime.format('MMMM D, YYYY h:mm:ss A')}
-      </p>
       {allWeeks.map((weekKey) => {
         const [weekNum, year] = weekKey.split('-').map(Number);
         const weekStart = dayjs().year(year).isoWeek(weekNum).startOf('isoWeek'); // Monday
