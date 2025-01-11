@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import EarningsWeek from '@/components/EarningsWeek';
+import { WeekData } from '@/types/types';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrAfter);
@@ -14,15 +15,6 @@ interface EarningsData {
   earnings_date: string;
   market_session: string | null;
 }
-
-type EarningEntry = {
-  ticker: string;
-  market_session: 'pre' | 'after' | null;
-};
-
-type WeekData = {
-  [key: string]: EarningEntry[];
-};
 
 const Earnings: React.FC = () => {
   const [earnings, setEarnings] = useState<EarningsData[]>([]);
