@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.7",
+    "@supabase/supabase-js": "^2.47.12",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "lucide-react": "^0.471.0",
