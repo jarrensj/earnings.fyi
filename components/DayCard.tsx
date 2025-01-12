@@ -32,6 +32,18 @@ const DayCard: React.FC<DayCardProps> = ({ day, date, entries, favorites, onTogg
                 className="flex items-center justify-between text-sm text-gray-700"
               >
                 <div className="flex items-center">
+                  {entry.logo_url && (
+                    <img 
+                      src={entry.logo_url} 
+                      alt={`${entry.ticker} logo`} 
+                      width={20}
+                      height={20}
+                      className="mr-2"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  )}
                   <span className="font-medium">{entry.ticker}</span>
                 </div>
                 <button 
