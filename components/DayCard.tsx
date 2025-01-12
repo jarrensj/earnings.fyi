@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { EarningEntry } from '@/types/types';
+import { SunIcon, MoonIcon, ClockIcon } from "lucide-react";
 
 interface DayCardProps {
   day: string;
@@ -32,6 +33,15 @@ const DayCard: React.FC<DayCardProps> = ({ day, date, entries, favorites, onTogg
                 className="flex items-center justify-between text-sm text-gray-700"
               >
                 <div className="flex items-center">
+                  <div className="flex flex-col items-left" style={{ width: '24px' }}>
+                  {entry.market_session === 'pre' ? (
+                      <SunIcon className={`h-4 w-4 ${'text-yellow-500'}`} />
+                    ) : entry.market_session === 'after' ? (
+                      <MoonIcon className={`h-4 w-4 ${'text-blue-500'}`} />
+                    ) : (
+                      <ClockIcon className={`h-4 w-4 ${'text-gray-500'}`} />
+                    )}
+                  </div>
                   {entry.logo_url && (
                     <img 
                       src={entry.logo_url} 
@@ -46,6 +56,7 @@ const DayCard: React.FC<DayCardProps> = ({ day, date, entries, favorites, onTogg
                   )}
                   <span className="font-medium">{entry.ticker}</span>
                 </div>
+                
                 <button 
                   onClick={() => onToggleFavorite(entry.ticker)}
                   className="ml-2 focus:outline-none hover:text-yellow-500 transition-colors duration-200"
