@@ -14,6 +14,7 @@ interface EarningsData {
   ticker: string;
   earnings_date: string;
   market_session: string | null;
+  logo_url: string;
 }
 
 const Earnings: React.FC = () => {
@@ -68,7 +69,7 @@ const Earnings: React.FC = () => {
 
     weeks[weekKey][dayName].push({
       ticker: item.ticker,
-      market_session: (item.market_session as "pre" | "after" | null) || null,
+      market_session: (item.market_session as "pre" | "after" | null) || null, logo_url: item.logo_url
     });
   });
 

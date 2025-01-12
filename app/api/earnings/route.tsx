@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from('earnings_calls')
-      .select('ticker, call_date, market_session')
+      .select('ticker, call_date, market_session, logo_url')
       .order('call_date', { ascending: true });
 
     if (error) {
@@ -22,6 +22,7 @@ export async function GET() {
       ticker: entry.ticker,
       earnings_date: entry.call_date,
       market_session: entry.market_session,
+      logo_url: entry.logo_url
     }));
 
     return NextResponse.json(formattedData);
