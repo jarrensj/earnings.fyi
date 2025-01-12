@@ -111,7 +111,7 @@ const Earnings: React.FC = () => {
         const [weekNum, year] = weekKey.split('-').map(Number);
         const weekStart = dayjs().year(year).isoWeek(weekNum).startOf('isoWeek'); // Monday
         const weekEnd = dayjs().year(year).isoWeek(weekNum).startOf('isoWeek').add(4, 'day'); // Friday
-        const dateRange = `${weekStart.format('MMM D')} - ${weekEnd.format('MMM D, YYYY')}`;
+        const dateRange = `${weekStart.format('MMM D')} - ${weekEnd.format('D, YYYY')}`;
 
         return (
           <div key={weekKey} className="space-y-8 mb-6">
