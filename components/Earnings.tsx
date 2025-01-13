@@ -127,15 +127,24 @@ const Earnings: React.FC = () => {
           </div>
         );
       })}
-        <div className="text-center text-sm text-gray-600">
-            <p>
-                <SunIcon className="inline h-4 w-4 text-yellow-500 mr-1" /> Premarket
-                <span className="mx-4">|</span>
-                <MoonIcon className="inline h-4 w-4 text-blue-500 mr-1" /> Aftermarket
-                <span className="mx-4">|</span>
-                <ClockIcon className="inline h-4 w-4 text-gray-500 mr-1" /> Time Not Supplied
-            </p>
+      <div className="text-center text-sm text-gray-600">
+        <div className="flex flex-col sm:flex-row items-center justify-center">
+          <div className="flex items-center mb-1 sm:mb-0">
+            <SunIcon className="h-4 w-4 text-yellow-500 mr-1" />
+            <span>Premarket</span>
+          </div>
+          <span className="mx-4 hidden sm:inline">|</span>
+          <div className="flex items-center mb-1 sm:mb-0">
+            <MoonIcon className="h-4 w-4 text-blue-500 mr-1" />
+            <span>Aftermarket</span>
+          </div>
+          <span className="mx-4 hidden sm:inline">|</span>
+          <div className="flex items-center mb-1 sm:mb-0">
+            <ClockIcon className="h-4 w-4 text-gray-500 mr-1" />
+            <span>Time Not Supplied</span>
+          </div>
         </div>
+      </div>
     </div>
   );
 };
