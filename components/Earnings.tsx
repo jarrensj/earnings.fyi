@@ -24,8 +24,7 @@ const Earnings: React.FC = () => {
   const [earnings, setEarnings] = useState<EarningsData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showLastWeek] = useState<boolean>(false);
-  const { user, isLoaded } = useUser();
-  const user_id = user?.id;
+  const { user } = useUser();
   const fetchEarnings = async () => {
     try {
       if (user) {
@@ -96,15 +95,8 @@ const Earnings: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchEarnings = async () => {
-      const response = await fetch('/api/earnings');
-      const data: EarningsData[] = await response.json();
-      setEarnings(data);
-      setLoading(false);
-    };
-
     fetchEarnings();
-  }, []);
+  }, [user]);
 
   if (loading) {
     return <div className="text-center py-4">Loading...</div>;
