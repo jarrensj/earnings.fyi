@@ -6,6 +6,7 @@ import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import EarningsWeek from '@/components/EarningsWeek';
 import { WeekData } from '@/types/types';
+import { SunIcon, MoonIcon, ClockIcon } from 'lucide-react';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrAfter);
@@ -126,6 +127,24 @@ const Earnings: React.FC = () => {
           </div>
         );
       })}
+      <div className="text-center text-sm text-gray-600">
+        <div className="flex flex-col sm:flex-row items-center justify-center">
+          <div className="flex items-center mb-1 sm:mb-0">
+            <SunIcon className="h-4 w-4 text-yellow-500 mr-1" />
+            <span>Premarket</span>
+          </div>
+          <span className="mx-4 hidden sm:inline">|</span>
+          <div className="flex items-center mb-1 sm:mb-0">
+            <MoonIcon className="h-4 w-4 text-blue-500 mr-1" />
+            <span>Aftermarket</span>
+          </div>
+          <span className="mx-4 hidden sm:inline">|</span>
+          <div className="flex items-center mb-1 sm:mb-0">
+            <ClockIcon className="h-4 w-4 text-gray-500 mr-1" />
+            <span>Time Not Supplied</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
