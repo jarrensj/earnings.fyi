@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
 }
 
 // Add or remove a ticker in the favorites array for the current Clerk user.
-export async function PATCH(req: NextRequest) {
+export async function PUT(req: NextRequest) {
   try {
     const { userId: clerkUserId } = getAuth(req);
     if (!clerkUserId) {
@@ -100,34 +100,12 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { ticker, remove } = await req.json();
+    const { favorites } = await req.json();  // Expect the complete favorites array
 
-    // 1) Get current favorites
-    const { data: row, error: fetchError } = await supabase
-      .from("users")
-      .select("favorites")
-      .eq("clerk_id", clerkUserId)
-      .single();
-
-    if (fetchError || !row) {
-      return NextResponse.json({ error: "No user row found." }, { status: 404 });
-    }
-
-    let currentFavorites = row.favorites || [];
-
-    // 2) Update array
-    if (remove) {
-      currentFavorites = currentFavorites.filter((fav: string) => fav !== ticker);
-    } else {
-      if (!currentFavorites.includes(ticker)) {
-        currentFavorites.push(ticker);
-      }
-    }
-
-    // 3) Update record
+    // Update the entire favorites array
     const { data: updated, error: updateError } = await supabase
       .from("users")
-      .update({ favorites: currentFavorites })
+      .update({ favorites: favorites })  // Replace entire favorites array
       .eq("clerk_id", clerkUserId)
       .single();
 

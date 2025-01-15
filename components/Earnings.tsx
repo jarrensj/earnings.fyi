@@ -32,7 +32,7 @@ const Earnings: React.FC = () => {
     return [];
   });
 
-  // Ensure User record exists in Supabase, then GET their favorites.
+  // At sign-in, ensure User record exists in Supabase, then GET their favorites.
   const ensureSupabaseUserAndFetchFavorites = async () => {
     if (!user) return;
     
@@ -80,21 +80,30 @@ const Earnings: React.FC = () => {
     } else {
       // If signed in => update via Supabase
       // 1) Update local state optimistically
-      setFavorites((prev) => {
-        if (prev.includes(ticker)) {
-          return prev.filter((t) => t !== ticker);
-        } else {
-          return [...prev, ticker];
-        }
-      });
+      const newFavorites = favorites.includes(ticker)
+        ? favorites.filter((t) => t !== ticker)
+        : [...favorites, ticker];
+      
+      setFavorites(newFavorites);
 
-      // 2) Make the PATCH request
-      const remove = favorites.includes(ticker); 
-      await fetch('/api/users', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticker, remove })
-      });
+      // 2) Make the PUT request with complete favorites array
+      try {
+        const response = await fetch('/api/users', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ favorites: newFavorites })
+        });
+
+        if (!response.ok) {
+          // If the request fails, revert the optimistic update
+          setFavorites(favorites);
+          console.error('Failed to update favorites');
+        }
+      } catch (error) {
+        // If there's an error, revert the optimistic update
+        setFavorites(favorites);
+        console.error('Error updating favorites:', error);
+      }
     }
   };
 
