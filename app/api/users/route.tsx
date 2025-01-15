@@ -4,12 +4,27 @@ import { getAuth } from "@clerk/nextjs/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY || "";
-const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Create a custom Supabase client that includes the Clerk JWT
+const createClerkSupabaseClient = async (req: NextRequest) => {
+  const { getToken } = getAuth(req);
+  const supabaseToken = await getToken({ template: 'supabase' });
+
+  return createClient(supabaseUrl, supabaseKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${supabaseToken}`
+      }
+    }
+  });
+};
 
 // Ensure a row in `users` exists for the current Clerk user.
 export async function POST(req: NextRequest) {
   try {
     const { userId: clerkUserId } = getAuth(req);
+    const supabase = await createClerkSupabaseClient(req);
+    
     //console.log('POST - Clerk User ID:', clerkUserId);
 
     if (!clerkUserId) {
@@ -62,6 +77,8 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const { userId: clerkUserId } = getAuth(req);
+    const supabase = await createClerkSupabaseClient(req);
+    
     if (!clerkUserId) {
       return NextResponse.json(
         { error: "No user found in Clerk session." },
@@ -93,6 +110,8 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const { userId: clerkUserId } = getAuth(req);
+    const supabase = await createClerkSupabaseClient(req);
+    
     if (!clerkUserId) {
       return NextResponse.json(
         { error: "No user found in Clerk session." },
