@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -33,7 +33,7 @@ const Earnings: React.FC = () => {
   });
 
   // At sign-in, ensure User record exists in Supabase, then GET their favorites.
-  const ensureSupabaseUserAndFetchFavorites = async () => {
+  const ensureSupabaseUserAndFetchFavorites = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -64,7 +64,7 @@ const Earnings: React.FC = () => {
     } catch (error) {
       console.error('Error in ensureSupabaseUserAndFetchFavorites:', error);
     }
-  };
+  }, [user]);
 
   // Show favorites for two scenarios: not signed in => localStorage, signed in => Supabase
   const toggleFavorite = async (ticker: string) => {
@@ -112,7 +112,7 @@ const Earnings: React.FC = () => {
     if (isLoaded && isSignedIn) {
       ensureSupabaseUserAndFetchFavorites();
     }
-  }, [isLoaded, isSignedIn]); // re-run if sign-in state changes
+  }, [isLoaded, isSignedIn, ensureSupabaseUserAndFetchFavorites]); // re-run if sign-in state changes
 
 
   useEffect(() => {

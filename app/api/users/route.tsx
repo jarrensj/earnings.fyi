@@ -67,9 +67,12 @@ export async function POST(req: NextRequest) {
 
     //console.log('POST - Returning existing user:', existing);
     return NextResponse.json({ user: existing }, { status: 200 });
-  } catch (error: any) {
-    console.error('POST - Unexpected error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const apiError: ApiError = {
+      message: error instanceof Error ? error.message : 'An unknown error occurred'
+    };
+    console.error('POST - Unexpected error:', apiError);
+    return NextResponse.json({ error: apiError.message }, { status: 500 });
   }
 }
 
@@ -101,8 +104,11 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ favorites: row.favorites }, { status: 200 })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const apiError: ApiError = {
+      message: error instanceof Error ? error.message : 'An unknown error occurred'
+    };
+    return NextResponse.json({ error: apiError.message }, { status: 500 });
   }
 }
 
@@ -133,7 +139,17 @@ export async function PUT(req: NextRequest) {
     }
 
     return NextResponse.json({ user: updated }, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const apiError: ApiError = {
+      message: error instanceof Error ? error.message : 'An unknown error occurred'
+    };
+    return NextResponse.json({ error: apiError.message }, { status: 500 });
   }
+}
+
+// Add this interface for API errors
+interface ApiError {
+  message: string;
+  code?: string;
+  details?: string;
 }
