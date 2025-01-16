@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "earnings.fyi",
-  description: "An earnings calendar to help keep track of your earnings watchlist.",
+  title: "glasscannon.co",
+  description: "Glass Cannon is a brand and community built for those bold enough to capitalize on volatility.",
 };
 
 export default function RootLayout({

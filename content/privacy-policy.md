@@ -1,7 +1,7 @@
 # Privacy Policy
 _Last Updated: January 1st, 2025_
 ## 1. Introduction
-This Privacy Policy explains how earnings.fyi ("we," "our," "us") collects, uses, and protects your information when you use our Website.
+This Privacy Policy explains how glasscannon.co ("we," "our," "us") collects, uses, and protects your information when you use our Website.
 ## 2. Information We Collect
 - **Personal Information**: When you sign in or register, we may collect information such as your name, email address, and authentication credentials.
 - **User Preferences**: We store the favorites you select and the customized sorting preferences you set on the Website.
@@ -26,7 +26,7 @@ Depending on your location, you may have the following rights regarding your dat
 - Request deletion of your data.
 - Opt-out of certain data processing practices.
 ## 9. Children's Privacy
-earnings.fyi is not intended for users under the age of 13. We do not knowingly collect personal information from children.
+glasscannon.co is not intended for users under the age of 13. We do not knowingly collect personal information from children.
 ## 10. Changes to This Policy
 We may update this Privacy Policy from time to time. Changes will be posted on this page, and significant updates may be communicated via email or a notification on the Website.
 ## 11. Contact Us
