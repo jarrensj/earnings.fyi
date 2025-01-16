@@ -199,7 +199,7 @@ const Earnings: React.FC = () => {
           </div>
         );
       })}
-      <div className="text-center text-sm text-gray-600">
+      <div className="text-center text-sm text-white">
         <div className="flex flex-col sm:flex-row items-center justify-center">
           <div className="flex items-center mb-1 sm:mb-0">
             <SunIcon className="h-4 w-4 text-yellow-500 mr-1" />

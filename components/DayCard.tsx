@@ -22,7 +22,7 @@ const DayCard: React.FC<DayCardProps> = ({ day, date, entries, favorites, onTogg
     <Card className="h-full relative shadow-lg hover:shadow-xl transition-shadow duration-300">
       <p className="absolute top-2 left-2 text-xs text-gray-400">{date}</p>
       <CardHeader className="pt-6">
-        <CardTitle className="text-lg font-semibold text-gray-800">{day}</CardTitle>
+        <CardTitle className="text-lg font-semibold text-white">{day}</CardTitle>
       </CardHeader>
       <CardContent>
         {sortedEntries.length > 0 ? (
@@ -30,7 +30,7 @@ const DayCard: React.FC<DayCardProps> = ({ day, date, entries, favorites, onTogg
             {sortedEntries.map((entry, index) => (
               <li
                 key={index}
-                className="flex items-center justify-between text-sm text-gray-700"
+                className="flex items-center justify-between text-sm text-white"
               >
                 <div className="flex items-center">
                   <div className="flex flex-col items-left" style={{ width: '24px' }}>

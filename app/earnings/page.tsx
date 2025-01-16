@@ -20,15 +20,33 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] items-start justify-items-center min-h-screen p-4 pb-16 gap-8 sm:p-16 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-4 row-start-2 items-center sm:items-start">
-        <h1 className="text-2xl font-bold">glasscannon.co earnings calendar</h1>
-        <p className="text-center text-xs text-gray-500">
-          {dateTime}
-        </p>
-        <Earnings />
-      </main>
-      <Footer />
-    </div>
+    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-between p-4 sm:p-8 overflow-hidden">
+      {/* Background layers */}
+      <div className="fixed inset-0 bg-gradient-to-br from-[var(--bg-from)] via-[var(--bg-via)] to-[var(--bg-to)] z-[0]"></div>
+      
+      <div className="geometric-bg fixed inset-0">
+        <div className="geometric-shape shape-1"></div>
+        <div className="geometric-shape shape-2"></div>
+      </div>
+      
+      <div className="fixed inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
+      
+      {/* Content wrapper */}
+      <div className="relative flex flex-col items-center justify-between min-h-screen w-full z-10">
+        {/* Main content */}
+        <div className="flex-grow flex flex-col items-center justify-center">
+          <h1 className="text-2xl font-bold">earnings calendar</h1>
+          <p className="text-center text-xs text-gray-400">
+            {dateTime}
+          </p>
+          <div className="mb-12">
+            <Earnings />
+          </div>
+        </div>
+        
+        {/* Footer */}
+        <Footer />
+      </div>
+    </main>
   );
 }
