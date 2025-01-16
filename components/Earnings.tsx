@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import EarningsWeek from '@/components/EarningsWeek';
 import { WeekData } from '@/types/types';
 import { SunIcon, MoonIcon, ClockIcon } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrAfter);
@@ -21,6 +22,7 @@ interface EarningsData {
 const Earnings: React.FC = () => {
   const [earnings, setEarnings] = useState<EarningsData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { isLoaded, isSignedIn, user } = useUser();
   const [showLastWeek] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -30,15 +32,88 @@ const Earnings: React.FC = () => {
     return [];
   });
 
-  const toggleFavorite = (ticker: string) => {
-    setFavorites(prev => {
-      const newFavorites = prev.includes(ticker)
-        ? prev.filter(t => t !== ticker)
-        : [...prev, ticker];
-      localStorage.setItem('favorites', JSON.stringify(newFavorites));
-      return newFavorites;
-    });
+  // At sign-in, ensure User record exists in Supabase, then GET their favorites.
+  const ensureSupabaseUserAndFetchFavorites = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      //console.log('Ensuring user exists - Clerk ID:', user.id);
+      
+      // 1) Ensure user row exists
+      const createResponse = await fetch('/api/users', {
+        method: 'POST'
+      });
+      const createData = await createResponse.json();
+      //console.log('Create response:', { status: createResponse.status, data: createData });
+
+      if (!createResponse.ok) {
+        console.error('Error creating user:', createData.error);
+        return;
+      }
+
+      // 2) Fetch favorites
+      const getFavResponse = await fetch('/api/users', {
+        method: 'GET'
+      });
+      const getFavData = await getFavResponse.json();
+      //console.log('Get favorites response:', { status: getFavResponse.status, data: getFavData });
+
+      if (getFavResponse.ok && getFavData.favorites) {
+        setFavorites(getFavData.favorites);
+      }
+    } catch (error) {
+      console.error('Error in ensureSupabaseUserAndFetchFavorites:', error);
+    }
+  }, [user]);
+
+  // Show favorites for two scenarios: not signed in => localStorage, signed in => Supabase
+  const toggleFavorite = async (ticker: string) => {
+    // If user not signed in => local storage
+    if (!isSignedIn) {
+      setFavorites((prev) => {
+        const newFavorites = prev.includes(ticker)
+          ? prev.filter((t) => t !== ticker)
+          : [...prev, ticker];
+        localStorage.setItem('favorites', JSON.stringify(newFavorites));
+        return newFavorites;
+      });
+    } else {
+      // If signed in => update via Supabase
+      // 1) Update local state optimistically
+      const newFavorites = favorites.includes(ticker)
+        ? favorites.filter((t) => t !== ticker)
+        : [...favorites, ticker];
+      
+      setFavorites(newFavorites);
+
+      // 2) Make the PUT request with complete favorites array
+      try {
+        const response = await fetch('/api/users', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ favorites: newFavorites })
+        });
+
+        if (!response.ok) {
+          // If the request fails, revert the optimistic update
+          setFavorites(favorites);
+          console.error('Failed to update favorites');
+        }
+      } catch (error) {
+        // If there's an error, revert the optimistic update
+        setFavorites(favorites);
+        console.error('Error updating favorites:', error);
+      }
+    }
   };
+
+  // If user signs in, ensure user in Supabase & fetch favorites ===
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      ensureSupabaseUserAndFetchFavorites();
+    }
+  }, [isLoaded, isSignedIn, ensureSupabaseUserAndFetchFavorites]); // re-run if sign-in state changes
+
 
   useEffect(() => {
     const fetchEarnings = async () => {
