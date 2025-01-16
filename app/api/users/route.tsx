@@ -24,11 +24,8 @@ export async function POST(req: NextRequest) {
   try {
     const { userId: clerkUserId } = getAuth(req);
     const supabase = await createClerkSupabaseClient(req);
-    
-    //console.log('POST - Clerk User ID:', clerkUserId);
 
     if (!clerkUserId) {
-      //console.log('POST - No Clerk user found');
       return NextResponse.json(
         { error: "No user found in Clerk session." },
         { status: 401 }
@@ -41,8 +38,6 @@ export async function POST(req: NextRequest) {
       .select("*")
       .eq("clerk_id", clerkUserId)
       .single();
-
-    //console.log('POST - Supabase check result:', { existing, error: existingError });
 
     if (existingError && existingError.code !== "PGRST116") {
       console.error('POST - Supabase error:', existingError);
@@ -61,11 +56,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: insertError.message }, { status: 500 });
       }
 
-      //console.log('POST - New user created:', newUser);
       return NextResponse.json({ user: newUser }, { status: 200 });
     }
 
-    //console.log('POST - Returning existing user:', existing);
     return NextResponse.json({ user: existing }, { status: 200 });
   } catch (error: unknown) {
     const apiError: ApiError = {

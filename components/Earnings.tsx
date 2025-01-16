@@ -37,14 +37,12 @@ const Earnings: React.FC = () => {
     if (!user) return;
     
     try {
-      //console.log('Ensuring user exists - Clerk ID:', user.id);
       
       // 1) Ensure user row exists
       const createResponse = await fetch('/api/users', {
         method: 'POST'
       });
       const createData = await createResponse.json();
-      //console.log('Create response:', { status: createResponse.status, data: createData });
 
       if (!createResponse.ok) {
         console.error('Error creating user:', createData.error);
@@ -56,7 +54,6 @@ const Earnings: React.FC = () => {
         method: 'GET'
       });
       const getFavData = await getFavResponse.json();
-      //console.log('Get favorites response:', { status: getFavResponse.status, data: getFavData });
 
       if (getFavResponse.ok && getFavData.favorites) {
         setFavorites(getFavData.favorites);
