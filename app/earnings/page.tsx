@@ -21,7 +21,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-between p-4 sm:p-8 overflow-hidden">
-      {/* Background layers */}
       <div className="fixed inset-0 bg-gradient-to-br from-[var(--bg-from)] via-[var(--bg-via)] to-[var(--bg-to)] z-[0]"></div>
       
       <div className="geometric-bg fixed inset-0">
@@ -31,9 +30,8 @@ export default function Home() {
       
       <div className="fixed inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
       
-      {/* Content wrapper */}
       <div className="relative flex flex-col items-center justify-between min-h-screen w-full z-10">
-        {/* Main content */}
+      
         <div className="flex-grow flex flex-col items-center justify-center">
           <h1 className="text-2xl font-bold">earnings calendar</h1>
           <p className="text-center text-xs text-gray-400">
@@ -44,7 +42,6 @@ export default function Home() {
           </div>
         </div>
         
-        {/* Footer */}
         <Footer />
       </div>
     </main>

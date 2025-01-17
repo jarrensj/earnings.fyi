@@ -8,7 +8,7 @@
   --bg-from: rgba(74, 14, 143, 0.8);
   --bg-via: rgba(15, 11, 48, 0.8);
   --bg-to: rgba(0, 0, 0, 0.8);
-  --grid-color: rgba(0, 240, 255, 0.3); /* Updated grid color with increased opacity */
+  --grid-color: rgba(0, 240, 255, 0.3); 
 }
 
 body {
@@ -16,7 +16,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Updated Button Style */
 .neon-button {
   position: relative;
   display: inline-block;
@@ -65,7 +64,6 @@ body {
   left: 100%;
 }
 
-/* Geometric Background Elements */
 .geometric-bg {
   position: absolute;
   inset: 0;
@@ -97,7 +95,6 @@ body {
   clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%, 0 20%);
 }
 
-/* Tracing Outline Style */
 .tracing-outline {
   position: relative;
   color: var(--button-color);
@@ -137,18 +134,17 @@ body {
   }
 }
 
-/* New Background Styles */
 .chart-background {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  opacity: 0.4; /* Increased overall opacity */
-  top: 20%; /* Adjust this value to fine-tune the grid's starting position */
+  opacity: 0.4; 
+  top: 20%; 
 }
 
 .grid-lines {
   position: absolute;
-  inset: -50% 0 -20% 0; /* Adjust vertical positioning */
+  inset: -50% 0 -20% 0; 
   background-image: 
     linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);

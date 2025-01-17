@@ -10,10 +10,9 @@ const orbitron = Orbitron({ subsets: ['latin'] })
   export default function Home() {
     return (
       <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden">
-        {/* Background layers */}
+        
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--bg-from)] via-[var(--bg-via)] to-[var(--bg-to)] z-[0]"></div>
         
-        {/* Chart-inspired background */}
         <div className="chart-background z-[1]">
           <div className="grid-lines"></div>
           <div className="chart-curve"></div>
@@ -26,7 +25,6 @@ const orbitron = Orbitron({ subsets: ['latin'] })
         
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
         
-        {/* Content */}
         <h1 className={`${orbitron.className} text-4xl sm:text-6xl md:text-7xl font-bold mb-8 text-center relative tracing-outline z-10`}>
           <span className="tracing-text" data-text="glasscannon.co">glasscannon.co</span>
         </h1>
