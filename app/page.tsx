@@ -26,12 +26,15 @@ const orbitron = Orbitron({ subsets: ['latin'] })
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay"></div>
         
         <h1 className={`${orbitron.className} text-4xl sm:text-6xl md:text-7xl font-bold mb-8 text-center relative tracing-outline z-10`}>
-          <span className="tracing-text" data-text="glasscannon.co">glasscannon.co</span>
+          <span className="tracing-text" data-text="glasscannon.co">glasscannon.app</span>
         </h1>
         
         <section className="max-w-2xl text-center mb-12 relative z-10">
           <p className="text-lg sm:text-xl text-gray-300 leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.
+            gamers turned traders<br />
+            capitalizing on volatility<br />
+            building in public<br />
+            coming soon
           </p>
         </section>
         
